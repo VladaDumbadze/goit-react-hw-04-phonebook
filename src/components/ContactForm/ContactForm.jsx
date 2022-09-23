@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-
+import PropTypes from 'prop-types';
 import shortid from 'shortid';
 
 class ContactForm extends Component {
@@ -21,7 +21,7 @@ class ContactForm extends Component {
     };
 
   reset = () => {
-    this.setSatet({ name: '', number: '' });
+    this.setState({ name: '', number: '' });
    }
     render() {
         return (
@@ -63,3 +63,8 @@ class ContactForm extends Component {
 }
 
 export default ContactForm;
+
+ContactForm.propTypes = {
+  
+  onSubmit: PropTypes.func.isRequired,
+};

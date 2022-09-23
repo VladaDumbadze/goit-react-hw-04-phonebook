@@ -21,7 +21,7 @@ export class App extends Component {
   formSubmitHandler = data => {
     const { name, number } = data;
     const { contacts } = this.state;
-    contacts.some(contact => contact.name === name)
+    contacts.some(contact => contact.name.toUpperCase() === name.toUpperCase())
       ? alert(`${name} is already in contacts`)
       : contacts.push({ id: shortid(), name: name, number: number });
     this.setState({ contacts: contacts });
@@ -45,6 +45,7 @@ export class App extends Component {
       contact.name.toLowerCase().includes(filter.toLowerCase()) &&
         contactsFiltered.push(contact);
     });
+    console.log(contacts);
 
     return (
       <div>
