@@ -1,74 +1,48 @@
-import React, { Component } from "react";
-import shortid from "shortid";
+import { useState } from 'react';
 
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
-import Filter from './Filter/Filter'
+import Filter from './Filter/Filter';
+import useLocalStorage from './UseLocalStorage/UseLocalStorage';
 
+export default function App() {
+  const [contacts, setContacts] = useLocalStorage('contacts', []);
+  const [filter, setFilter] = useState('');
 
-export class App extends Component {
-  
-  state = {
-   contacts: [
-    {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-    {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-    {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-    {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-  ],
-    filter: '',
-  };
-  
-  formSubmitHandler = data => {
-    const { name, number } = data;
-    const { contacts } = this.state;
-    contacts.some(contact => contact.name.toUpperCase() === name.toUpperCase())
-      ? alert(`${name} is already in contacts`)
-      : contacts.push({ id: shortid(), name: name, number: number });
-    this.setState({ contacts: contacts });
-  }; 
-
-  handleChange = e => {
-    this.setState({ filter: e.target.value });
+  const addContact = data => {
+    return contacts.map(contact => contact.name).includes(data.name)
+      ? alert(`${data.name} is already in contacts`)
+      : setContacts([...contacts, data]);
   };
 
-  deleteContact = (contactId) => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }))
-  }
+  const handleFilterChange = e => {
+    setFilter(e.currentTarget.value);
+  };
 
+  const deleteContact = id => {
+    setContacts(prevState => prevState.filter(contact => contact.id !== id));
+  };
 
-  render() {
-    const { contacts, filter } = this.state; 
-     const contactsFiltered = [];
+  const contactsFiltered = () => {
+    const contactsFiltered = [];
     contacts.forEach(contact => {
       contact.name.toLowerCase().includes(filter.toLowerCase()) &&
         contactsFiltered.push(contact);
     });
-    console.log(contacts);
+  };
 
-    return (
-      <div>
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.formSubmitHandler} />
-        <h2>Contacts</h2>
-        
-        
-        <Filter filter={filter} handleChange={this.handleChange} />
+  return (
+    <div>
+      <h1>Phonebook</h1>
+      <ContactForm addContact={addContact} contacts={contacts} />
+      <h2>Contacts</h2>
 
-        {contactsFiltered && (
-          <ContactList
-            contacts={contactsFiltered}
-            onDeliteContact={this.deleteContact}
-          />
-        )}
-      </div>
-        
-   
+      <Filter filter={filter} handleChange={handleFilterChange} />
+
+      <ContactList
+        contacts={filter ? contactsFiltered() : contacts}
+        onDeliteContact={deleteContact}
+      />
+    </div>
   );
 }
-};
-  
-
-
-export default App;
