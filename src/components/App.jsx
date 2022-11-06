@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
@@ -9,26 +9,34 @@ export default function App() {
   const [contacts, setContacts] = useLocalStorage('contacts', []);
   const [filter, setFilter] = useState('');
 
+  const contactsFiltered = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
   const addContact = data => {
-    return contacts.map(contact => contact.name).includes(data.name)
-      ? alert(`${data.name} is already in contacts`)
-      : setContacts([...contacts, data]);
-  };
-
-  const handleFilterChange = e => {
-    setFilter(e.currentTarget.value);
+    const { name, number } = data;
+    if (contacts.findIndex(contact => contact.name === name) !== -1) {
+      alert(`${name} is already in contacts`);
+      return;
+    }
+    setContacts(prevState => {
+      return [
+        ...prevState,
+        {
+          id: nanoid(),
+          name,
+          number,
+        },
+      ];
+    });
   };
 
   const deleteContact = id => {
     setContacts(prevState => prevState.filter(contact => contact.id !== id));
   };
 
-  const contactsFiltered = () => {
-    const contactsFiltered = [];
-    contacts.forEach(contact => {
-      contact.name.toLowerCase().includes(filter.toLowerCase()) &&
-        contactsFiltered.push(contact);
-    });
+  const handleFilterChange = e => {
+    const newFilter = e.currentTarget.value;
+    setFilter(newFilter.toLowerCase());
   };
 
   return (
@@ -40,8 +48,8 @@ export default function App() {
       <Filter filter={filter} handleChange={handleFilterChange} />
 
       <ContactList
-        contacts={filter ? contactsFiltered() : contacts}
-        onDeliteContact={deleteContact}
+        contacts={contactsFiltered}
+        onDeleteContact={deleteContact}
       />
     </div>
   );
